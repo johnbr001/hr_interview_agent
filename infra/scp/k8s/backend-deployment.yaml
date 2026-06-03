@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hr-interview-backend
+  namespace: hr-interview
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hr-interview-backend
+  template:
+    metadata:
+      labels:
+        app: hr-interview-backend
+    spec:
+      containers:
+        - name: backend
+          image: REGISTRY/hr-interview-backend:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: hr-interview-config
+            - secretRef:
+                name: hr-interview-secrets
+          env:
+            - name: RAG_UPLOAD_DIR
+              value: /data/uploads
+          volumeMounts:
+            - name: uploads
+              mountPath: /data/uploads
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hr-interview-backend
+  namespace: hr-interview
+spec:
+  selector:
+    app: hr-interview-backend
+  ports:
+    - port: 8080
+      targetPort: 8080

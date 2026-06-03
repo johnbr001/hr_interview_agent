@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hr-interview-frontend
+  namespace: hr-interview
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hr-interview-frontend
+  template:
+    metadata:
+      labels:
+        app: hr-interview-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: REGISTRY/hr-interview-frontend:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hr-interview-frontend
+  namespace: hr-interview
+spec:
+  type: LoadBalancer
+  selector:
+    app: hr-interview-frontend
+  ports:
+    - port: 80
+      targetPort: 80

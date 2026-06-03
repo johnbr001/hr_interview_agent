@@ -1,0 +1,32 @@
+# Full stack on top of docker-compose.yml (postgres + temporal)
+services:
+  ai-agent:
+    build: ./ai-agent
+    env_file: .env
+    depends_on:
+      - temporal
+    volumes:
+      - chroma:/app/data/chroma
+      - uploads:/app/data/uploads
+
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    env_file: .env
+    depends_on:
+      - postgres
+      - temporal
+    volumes:
+      - uploads:/data/uploads
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  chroma:
+  uploads:

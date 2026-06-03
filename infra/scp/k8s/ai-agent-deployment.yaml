@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hr-ai-agent
+  namespace: hr-interview
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hr-ai-agent
+  template:
+    metadata:
+      labels:
+        app: hr-ai-agent
+    spec:
+      containers:
+        - name: worker
+          image: REGISTRY/hr-ai-agent:latest
+          envFrom:
+            - configMapRef:
+                name: hr-interview-config
+            - secretRef:
+                name: hr-interview-secrets
+          volumeMounts:
+            - name: chroma-data
+              mountPath: /app/data/chroma
+            - name: uploads
+              mountPath: /app/data/uploads
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+      volumes:
+        - name: chroma-data
+          persistentVolumeClaim:
+            claimName: chroma-pvc
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: uploads-pvc
