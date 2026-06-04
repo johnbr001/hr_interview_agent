@@ -10,10 +10,16 @@ services:
       - uploads:/app/data/uploads
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     ports:
       - "8080:8080"
     env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://hr:hr_secret@postgres:5432/hr_interview
+      TEMPORAL_HOST: temporal:7233
+      RAG_UPLOAD_DIR: /data/uploads
     depends_on:
       - postgres
       - temporal

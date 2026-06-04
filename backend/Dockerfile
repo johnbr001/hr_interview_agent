@@ -1,11 +1,13 @@
-FROM eclipse-temurin:21-jdk-alpine AS build
+FROM python:3.12-slim
 WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN apk add --no-cache maven && mvn -q -DskipTests package
 
-FROM eclipse-temurin:21-jre-alpine
-WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+COPY ai-agent /tmp/ai-agent
+RUN pip install --no-cache-dir /tmp/ai-agent
+
+COPY backend/pyproject.toml .
+COPY backend/src ./src
+RUN pip install --no-cache-dir .
+
+ENV PYTHONUNBUFFERED=1
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["uvicorn", "hr_interview_backend.main:app", "--host", "0.0.0.0", "--port", "8080"]

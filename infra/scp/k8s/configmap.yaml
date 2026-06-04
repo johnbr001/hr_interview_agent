@@ -4,9 +4,9 @@ metadata:
   name: hr-interview-config
   namespace: hr-interview
 data:
-  TEMPORAL_TARGET: "temporal-frontend.hr-interview.svc:7233"
+  TEMPORAL_HOST: "temporal-frontend.hr-interview.svc:7233"
   TEMPORAL_NAMESPACE: "default"
   TEMPORAL_TASK_QUEUE: "hr-interview"
   OPENAI_MODEL: "gpt-4o-mini"
-  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres.hr-interview.svc:5432/hr_interview"
+  DATABASE_URL: "postgresql+psycopg2://hr:hr_secret@postgres.hr-interview.svc:5432/hr_interview"
   VITE_API_BASE_URL: ""

@@ -1,19 +1,15 @@
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    openai_api_key: str = ""
-    openai_model: str = "gpt-4o-mini"
-    temporal_host: str = Field(default="localhost:7233", validation_alias="TEMPORAL_HOST")
+    database_url: str = "postgresql+psycopg2://hr:hr_secret@localhost:5432/hr_interview"
+    temporal_host: str = "localhost:7233"
     temporal_namespace: str = "default"
     temporal_task_queue: str = "hr-interview"
-    chroma_persist_dir: str = "./data/chroma"
     rag_upload_dir: str = "./data/uploads"
-    brave_api_key: str = ""
-    tavily_api_key: str = ""
+    cors_origins: str = "http://localhost:5173"
 
 
 settings = Settings()

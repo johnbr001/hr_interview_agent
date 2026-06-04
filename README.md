@@ -9,7 +9,7 @@ flowchart TB
     subgraph FE["Frontend (React)"]
         UI[Interviewer UI]
     end
-    subgraph BE["Backend (Spring Boot)"]
+    subgraph BE["Backend (FastAPI)"]
         API[REST API]
         DB[(PostgreSQL)]
     end
@@ -36,14 +36,13 @@ flowchart TB
 | Service | Stack | Role |
 |---------|-------|------|
 | `frontend/` | React + Vite | Interviewer types answers, sees grade & rationale |
-| `backend/` | Java Spring Boot 3 | Sessions, persistence, Temporal workflow start |
+| `backend/` | Python FastAPI | Sessions, persistence, Temporal workflow start |
 | `ai-agent/` | Python, LangGraph, OpenAI | Scoring graph, RAG ingest, MCP tools, Temporal worker |
 
 ## Prerequisites
 
 - **Docker** — PostgreSQL and Temporal (local infra)
-- **Python 3.11+** — AI agent
-- **Java 21** and **Maven** — backend
+- **Python 3.11+** — AI agent and backend
 - **Node.js 20+** and **npm** — frontend
 - **OpenAI API key** — set in `.env` (see below)
 
@@ -54,7 +53,7 @@ There is no root `requirements.txt`. Each service declares its own dependencies:
 | Service | Dependency file | Install command |
 |---------|-----------------|-----------------|
 | AI agent | `ai-agent/pyproject.toml` | `pip install -e .` (from `ai-agent/`) |
-| Backend | `backend/pom.xml` | Maven resolves on build/run |
+| Backend | `backend/pyproject.toml` | `pip install -e .` (from `backend/`; needs ai-agent installed) |
 | Frontend | `frontend/package.json` | `npm install` (from `frontend/`) |
 
 ### 1. Environment
@@ -96,14 +95,19 @@ To generate a frozen `requirements.txt` locally (optional):
 pip freeze > requirements.txt
 ```
 
-### 4. Backend (Spring Boot)
+### 4. Backend (FastAPI)
+
+Install the AI agent package first (backend starts Temporal workflows defined there):
 
 ```powershell
-cd backend
-mvn spring-boot:run
+cd ai-agent
+pip install -e .
+cd ..\backend
+pip install -e .
+uvicorn hr_interview_backend.main:app --reload --port 8080
 ```
 
-Maven downloads dependencies from `pom.xml` on first run. API: http://localhost:8080
+API: http://localhost:8080 — OpenAPI docs: http://localhost:8080/docs
 
 ### 5. Frontend (React)
 
@@ -125,9 +129,9 @@ cd ai-agent
 .\.venv\Scripts\Activate.ps1
 python -m hr_interview_agent.worker
 
-# Terminal 2 — Backend
+# Terminal 2 — Backend (after pip install -e ai-agent and -e backend)
 cd backend
-mvn spring-boot:run
+uvicorn hr_interview_backend.main:app --reload --port 8080
 
 # Terminal 3 — Frontend
 cd frontend

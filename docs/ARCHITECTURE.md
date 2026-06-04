@@ -3,7 +3,7 @@
 ## Request flow (score one answer)
 
 1. Interviewer submits text in React UI.
-2. Spring `POST /api/sessions/{id}/score` persists intent and starts Temporal workflow `InterviewScoringWorkflow`.
+2. FastAPI `POST /api/sessions/{id}/score` starts Temporal workflow `InterviewScoringWorkflow` via `temporalio` client.
 3. Python worker executes LangGraph (see [LangGraph scorer flow](#langgraph-scorer-flow) below).
 4. Backend saves `ScoreTurn` and returns grade to UI.
 
@@ -62,7 +62,7 @@ flowchart TB
 ```mermaid
 sequenceDiagram
     participant UI as React UI
-    participant API as Spring Backend
+    participant API as FastAPI Backend
     participant T as Temporal
     participant W as Python Worker
     participant G as LangGraph
@@ -81,6 +81,19 @@ sequenceDiagram
     T-->>API: workflow complete
     API-->>UI: ScoreTurn JSON
 ```
+
+## Backend (FastAPI)
+
+Code: `backend/src/hr_interview_backend/`
+
+| Layer | Path | Role |
+|-------|------|------|
+| Routes | `routers/sessions.py`, `routers/rag.py` | REST API matching the React client |
+| Services | `services/interview_service.py`, `services/rag_service.py` | Business logic + DB |
+| Temporal | `temporal_service.py` | `execute_workflow` → AI worker activities |
+| ORM | `models.py` + SQLAlchemy | PostgreSQL (`interview_sessions`, `score_turns`, `rag_documents`) |
+
+Local run requires both packages installed: `pip install -e ai-agent` then `pip install -e backend`.
 
 ## Why Temporal?
 
